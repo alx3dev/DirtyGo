@@ -14,6 +14,8 @@ We search for single-character partitions, and encrypt every file with AES.
 
 # How to build
 ```go
+git clone https://github.com/alx3dev/DirtyGo.git
+cd DirtyGo
 go mod init dirty_go
 go mod tidy
 GOOS=windows go build dirty.go
