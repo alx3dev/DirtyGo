@@ -147,7 +147,7 @@ func main() {
 
 	// find partitions
 	var param []string
-	for _, drive := range "/ABCDEFGHIJKLMNOPQRSTUVWXYZ" {
+	for _, drive := range "ABCDEFGHIJKLMNOPQRSTUVWXYZ" {
 		f, err := os.Open(string(drive) + "")
 		if err == nil {
 			param = append(param, string(drive))
